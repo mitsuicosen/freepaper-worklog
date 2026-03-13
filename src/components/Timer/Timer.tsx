@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useWorkLogStore } from '../../stores/workLogStore';
 import { useIssueStore } from '../../stores/issueStore';
 import { TASK_CATEGORY_LABELS, type TaskCategory } from '../../types';
@@ -8,11 +8,12 @@ const TASK_CATEGORIES = Object.entries(TASK_CATEGORY_LABELS) as [TaskCategory, s
 const AI_TOOLS = ['Claude', 'ChatGPT', 'Gemini', 'Copilot'];
 
 export function Timer() {
-  const { activeTimer, startTimer, stopTimer, cancelTimer } = useWorkLogStore((s) => ({
+  const { activeTimer, startTimer, stopTimer, cancelTimer, logs } = useWorkLogStore((s) => ({
     activeTimer: s.activeTimer,
     startTimer: s.startTimer,
     stopTimer: s.stopTimer,
     cancelTimer: s.cancelTimer,
+    logs: s.logs,
   }));
 
   const { issues, articles } = useIssueStore((s) => ({
@@ -20,7 +21,12 @@ export function Timer() {
     articles: s.articles,
   }));
 
-  const todayLogs = useWorkLogStore((s) => s.getTodayLogs());
+  const todayLogs = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayMs = today.getTime();
+    return logs.filter((l) => new Date(l.startTime).getTime() >= todayMs);
+  }, [logs]);
 
   const [elapsed, setElapsed] = useState(0);
   const [issueId, setIssueId] = useState('');

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useWorkLogStore } from '../../stores/workLogStore';
 import { formatMinutes, getStartOfWeek } from '../../utils/timeUtils';
 import {
@@ -26,32 +27,53 @@ const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6'
 
 export function Analytics() {
   const logs = useWorkLogStore((s) => s.logs);
-  const weekStart = getStartOfWeek();
-  const weekLogs = logs.filter((l) => new Date(l.startTime).getTime() >= weekStart.getTime());
 
-  const totalMinutes = weekLogs.reduce((s, l) => s + (l.durationMinutes ?? 0), 0);
-  const aiRate = getAiUsageRate(weekLogs);
-  const aiSaved = getTotalAiSavedMinutes(weekLogs);
-  const categoryStats = getCategoryStats(weekLogs);
-  const aiComparison = getAiComparison(logs);
-  const candidates = getAiReplacementCandidates(logs);
-  const intStats = getInterruptionStats(weekLogs);
+  const weekStart = useMemo(() => getStartOfWeek(), []);
+  const weekLogs = useMemo(
+    () => logs.filter((l) => new Date(l.startTime).getTime() >= weekStart.getTime()),
+    [logs, weekStart]
+  );
 
-  const topCategory = categoryStats.length > 0
-    ? `${categoryStats[0].label}(${Math.round((categoryStats[0].totalMinutes / Math.max(totalMinutes, 1)) * 100)}%)`
-    : '-';
+  const totalMinutes = useMemo(
+    () => weekLogs.reduce((s, l) => s + (l.durationMinutes ?? 0), 0),
+    [weekLogs]
+  );
+  const aiRate = useMemo(() => getAiUsageRate(weekLogs), [weekLogs]);
+  const aiSaved = useMemo(() => getTotalAiSavedMinutes(weekLogs), [weekLogs]);
+  const categoryStats = useMemo(() => getCategoryStats(weekLogs), [weekLogs]);
+  const aiComparison = useMemo(() => getAiComparison(logs), [logs]);
+  const candidates = useMemo(() => getAiReplacementCandidates(logs), [logs]);
+  const intStats = useMemo(() => getInterruptionStats(weekLogs), [weekLogs]);
 
-  const barData = categoryStats.map((s) => ({
-    name: s.label.length > 6 ? s.label.substring(0, 6) + '...' : s.label,
-    fullName: s.label,
-    AI使用: Math.round(s.aiMinutes / 60 * 10) / 10,
-    AI未使用: Math.round(s.nonAiMinutes / 60 * 10) / 10,
-  }));
+  const topCategory = useMemo(
+    () =>
+      categoryStats.length > 0
+        ? `${categoryStats[0].label}(${Math.round(
+            (categoryStats[0].totalMinutes / Math.max(totalMinutes, 1)) * 100
+          )}%)`
+        : '-',
+    [categoryStats, totalMinutes]
+  );
 
-  const pieData = categoryStats.map((s) => ({
-    name: s.label,
-    value: s.totalMinutes,
-  }));
+  const barData = useMemo(
+    () =>
+      categoryStats.map((s) => ({
+        name: s.label.length > 6 ? s.label.substring(0, 6) + '...' : s.label,
+        fullName: s.label,
+        AI使用: Math.round((s.aiMinutes / 60) * 10) / 10,
+        AI未使用: Math.round((s.nonAiMinutes / 60) * 10) / 10,
+      })),
+    [categoryStats]
+  );
+
+  const pieData = useMemo(
+    () =>
+      categoryStats.map((s) => ({
+        name: s.label,
+        value: s.totalMinutes,
+      })),
+    [categoryStats]
+  );
 
   return (
     <div className="h-full overflow-auto">
