@@ -121,6 +121,13 @@ export const useWorkLogStore = create<WorkLogState>()(
         });
       },
     }),
-    { name: 'freepaper-worklogs' }
+    {
+      name: 'freepaper-worklogs',
+      onRehydrateStorage: () => {
+        return () => {
+          // Silently handle rehydration errors
+        };
+      },
+    }
   )
 );

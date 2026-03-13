@@ -87,6 +87,13 @@ export const useIssueStore = create<IssueState>()(
         return get().articles.filter((a) => a.issueId === issueId && a.status === status);
       },
     }),
-    { name: 'freepaper-issues' }
+    {
+      name: 'freepaper-issues',
+      onRehydrateStorage: () => {
+        return () => {
+          // Silently handle rehydration errors
+        };
+      },
+    }
   )
 );
