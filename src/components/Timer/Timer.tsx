@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useWorkLogStore } from '../../stores/workLogStore';
 import { useIssueStore } from '../../stores/issueStore';
 import { TASK_CATEGORY_LABELS, type TaskCategory } from '../../types';
@@ -40,16 +40,17 @@ export function Timer() {
       setElapsed(0);
       return;
     }
+    const startTime = new Date(activeTimer.startTime).getTime();
     const update = () => {
-      const diff = Math.floor((Date.now() - new Date(activeTimer.startTime).getTime()) / 1000);
+      const diff = Math.floor((Date.now() - startTime) / 1000);
       setElapsed(diff);
     };
     update();
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
-  }, [activeTimer]);
+  }, [activeTimer?.startTime]);
 
-  const handleStart = useCallback(() => {
+  const handleStart = () => {
     startTimer({
       issueId: issueId || undefined,
       articleId: articleId || undefined,
@@ -57,17 +58,17 @@ export function Timer() {
       taskName: taskName || TASK_CATEGORY_LABELS[taskCategory],
       isInterrupted,
     });
-  }, [issueId, articleId, taskCategory, taskName, isInterrupted, startTimer]);
+  };
 
-  const handleQuickInterrupt = useCallback(() => {
+  const handleQuickInterrupt = () => {
     startTimer({
       taskCategory: 'interruption',
       taskName: '差し込み業務',
       isInterrupted: true,
     });
-  }, [startTimer]);
+  };
 
-  const handleStop = useCallback(() => {
+  const handleStop = () => {
     stopTimer({
       aiUsed,
       aiTools: aiUsed && aiTools.length > 0 ? aiTools : undefined,
@@ -83,7 +84,7 @@ export function Timer() {
     setDifficulty(3);
     setComplexity('moderate');
     setMemo('');
-  }, [stopTimer, aiUsed, aiTools, aiTimeSaved, difficulty, complexity, memo]);
+  };
 
   const toggleAiTool = (tool: string) => {
     setAiTools((prev) => (prev.includes(tool) ? prev.filter((t) => t !== tool) : [...prev, tool]));
