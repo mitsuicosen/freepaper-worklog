@@ -8,14 +8,19 @@ const TASK_CATEGORIES = Object.entries(TASK_CATEGORY_LABELS) as [TaskCategory, s
 const AI_TOOLS = ['Claude', 'ChatGPT', 'Gemini', 'Copilot'];
 
 export function Timer() {
-  const activeTimer = useWorkLogStore((s) => s.activeTimer);
-  const startTimer = useWorkLogStore((s) => s.startTimer);
-  const stopTimer = useWorkLogStore((s) => s.stopTimer);
-  const cancelTimer = useWorkLogStore((s) => s.cancelTimer);
-  const todayLogs = useWorkLogStore((s) => s.getTodayLogs());
+  const { activeTimer, startTimer, stopTimer, cancelTimer } = useWorkLogStore((s) => ({
+    activeTimer: s.activeTimer,
+    startTimer: s.startTimer,
+    stopTimer: s.stopTimer,
+    cancelTimer: s.cancelTimer,
+  }));
 
-  const issues = useIssueStore((s) => s.issues);
-  const articles = useIssueStore((s) => s.articles);
+  const { issues, articles } = useIssueStore((s) => ({
+    issues: s.issues,
+    articles: s.articles,
+  }));
+
+  const todayLogs = useWorkLogStore((s) => s.getTodayLogs());
 
   const [elapsed, setElapsed] = useState(0);
   const [issueId, setIssueId] = useState('');
