@@ -7,6 +7,7 @@ import { KanbanColumn } from './KanbanColumn';
 import { CrossIssueView } from './CrossIssueView';
 import { CreateIssueModal } from './CreateIssueModal';
 import { CreateArticleModal } from './CreateArticleModal';
+import { EditArticleModal } from './EditArticleModal';
 import { ArticleCard } from './ArticleCard';
 
 const STATUSES: WorkflowStatus[] = ['planning', 'interview', 'writing', 'proofreading', 'completed'];
@@ -22,6 +23,7 @@ export function IssueBoard() {
   const [showCreateIssue, setShowCreateIssue] = useState(false);
   const [showCreateArticle, setShowCreateArticle] = useState(false);
   const [draggedArticle, setDraggedArticle] = useState<Article | null>(null);
+  const [editingArticle, setEditingArticle] = useState<Article | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -119,6 +121,7 @@ export function IssueBoard() {
                     (a) => a.issueId === selectedIssueId && a.status === status
                   )}
                   onAddClick={() => setShowCreateArticle(true)}
+                  onEditArticle={setEditingArticle}
                 />
               ))}
             </div>
@@ -139,6 +142,11 @@ export function IssueBoard() {
         )}
       </div>
 
+      <EditArticleModal
+        open={!!editingArticle}
+        onClose={() => setEditingArticle(null)}
+        article={editingArticle}
+      />
       <CreateIssueModal open={showCreateIssue} onClose={() => setShowCreateIssue(false)} />
       {selectedIssueId && (
         <CreateArticleModal
