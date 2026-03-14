@@ -41,9 +41,18 @@ export function IssueBoard() {
     if (!over) return;
 
     const articleId = active.id as string;
-    const targetStatus = over.id as WorkflowStatus;
-    if (STATUSES.includes(targetStatus)) {
-      moveArticle(articleId, targetStatus);
+    const overId = over.id as string;
+
+    // Dropped directly on a column
+    if (STATUSES.includes(overId as WorkflowStatus)) {
+      moveArticle(articleId, overId as WorkflowStatus);
+      return;
+    }
+
+    // Dropped on another article card — find that card's column status
+    const targetArticle = articles.find((a) => a.id === overId);
+    if (targetArticle) {
+      moveArticle(articleId, targetArticle.status);
     }
   };
 
