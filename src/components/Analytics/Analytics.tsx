@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useWorkLogStore } from '../../stores/workLogStore';
 import { formatMinutes, getStartOfWeek } from '../../utils/timeUtils';
 import {
@@ -25,25 +25,50 @@ import {
 
 const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#f43f5e', '#64748b', '#a855f7'];
 
+type PeriodKey = 'week' | 'month' | 'half-year' | 'year' | 'all';
+
+const PERIODS: { key: PeriodKey; label: string }[] = [
+  { key: 'week', label: '今週' },
+  { key: 'month', label: '1ヶ月' },
+  { key: 'half-year', label: '半年' },
+  { key: 'year', label: '1年' },
+  { key: 'all', label: '全期間' },
+];
+
+function getPeriodStart(key: PeriodKey): Date | null {
+  if (key === 'all') return null;
+  if (key === 'week') return getStartOfWeek();
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  if (key === 'month') { now.setMonth(now.getMonth() - 1); return now; }
+  if (key === 'half-year') { now.setMonth(now.getMonth() - 6); return now; }
+  now.setFullYear(now.getFullYear() - 1);
+  return now;
+}
+
 export function Analytics() {
   const logs = useWorkLogStore((s) => s.logs);
+  const [period, setPeriod] = useState<PeriodKey>('week');
 
-  const weekStart = useMemo(() => getStartOfWeek(), []);
-  const weekLogs = useMemo(
-    () => logs.filter((l) => new Date(l.startTime).getTime() >= weekStart.getTime()),
-    [logs, weekStart]
-  );
+  const filteredLogs = useMemo(() => {
+    const start = getPeriodStart(period);
+    if (!start) return logs;
+    const startMs = start.getTime();
+    return logs.filter((l) => new Date(l.startTime).getTime() >= startMs);
+  }, [logs, period]);
+
+  const periodLabel = PERIODS.find((p) => p.key === period)!.label;
 
   const totalMinutes = useMemo(
-    () => weekLogs.reduce((s, l) => s + (l.durationMinutes ?? 0), 0),
-    [weekLogs]
+    () => filteredLogs.reduce((s, l) => s + (l.durationMinutes ?? 0), 0),
+    [filteredLogs]
   );
-  const aiRate = useMemo(() => getAiUsageRate(weekLogs), [weekLogs]);
-  const aiSaved = useMemo(() => getTotalAiSavedMinutes(weekLogs), [weekLogs]);
-  const categoryStats = useMemo(() => getCategoryStats(weekLogs), [weekLogs]);
-  const aiComparison = useMemo(() => getAiComparison(logs), [logs]);
-  const candidates = useMemo(() => getAiReplacementCandidates(logs), [logs]);
-  const intStats = useMemo(() => getInterruptionStats(weekLogs), [weekLogs]);
+  const aiRate = useMemo(() => getAiUsageRate(filteredLogs), [filteredLogs]);
+  const aiSaved = useMemo(() => getTotalAiSavedMinutes(filteredLogs), [filteredLogs]);
+  const categoryStats = useMemo(() => getCategoryStats(filteredLogs), [filteredLogs]);
+  const aiComparison = useMemo(() => getAiComparison(filteredLogs), [filteredLogs]);
+  const candidates = useMemo(() => getAiReplacementCandidates(filteredLogs), [filteredLogs]);
+  const intStats = useMemo(() => getInterruptionStats(filteredLogs), [filteredLogs]);
 
   const topCategory = useMemo(
     () =>
@@ -78,11 +103,28 @@ export function Analytics() {
   return (
     <div className="h-full overflow-auto">
       <div className="max-w-5xl mx-auto p-4 space-y-6">
-        <h2 className="text-lg font-semibold text-paper-100">分析ダッシュボード</h2>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h2 className="text-lg font-semibold text-paper-100">分析ダッシュボード</h2>
+          <div className="flex gap-1">
+            {PERIODS.map((p) => (
+              <button
+                key={p.key}
+                onClick={() => setPeriod(p.key)}
+                className={`px-3 py-1 text-xs rounded transition-colors ${
+                  period === p.key
+                    ? 'bg-accent-600 text-white'
+                    : 'bg-ink-700 text-ink-300 hover:bg-ink-600'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <SummaryCard label="今週の工数" value={formatMinutes(totalMinutes)} />
+          <SummaryCard label={`${periodLabel}の工数`} value={formatMinutes(totalMinutes)} />
           <SummaryCard label="AI使用率" value={`${aiRate}%`} />
           <SummaryCard label="AI節約時間" value={formatMinutes(aiSaved)} />
           <SummaryCard label="最多カテゴリ" value={topCategory} small />
@@ -168,7 +210,7 @@ export function Analytics() {
 
         {/* Interruption stats */}
         <div className="bg-ink-800 border border-ink-700 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-ink-300 mb-4">差し込み業務分析（今週）</h3>
+          <h3 className="text-sm font-medium text-ink-300 mb-4">差し込み業務分析（{periodLabel}）</h3>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">{intStats.count}</div>

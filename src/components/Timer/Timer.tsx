@@ -24,6 +24,7 @@ export function Timer() {
   const [taskName, setTaskName] = useState('');
   const [issueId, setIssueId] = useState('');
   const [articleId, setArticleId] = useState('');
+  const [aiUsed, setAiUsed] = useState(false);
   const [showManual, setShowManual] = useState(false);
   const [manualDate, setManualDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [manualStart, setManualStart] = useState('09:00');
@@ -32,6 +33,7 @@ export function Timer() {
   const [manualName, setManualName] = useState('');
   const [manualIssueId, setManualIssueId] = useState('');
   const [manualArticleId, setManualArticleId] = useState('');
+  const [manualAiUsed, setManualAiUsed] = useState(false);
 
   // Memoized computations
   const filteredArticles = useMemo(
@@ -76,10 +78,11 @@ export function Timer() {
   };
 
   const handleStop = () => {
-    stopTimer({});
+    stopTimer({ aiUsed });
     setTaskName('');
     setIssueId('');
     setArticleId('');
+    setAiUsed(false);
   };
 
   const manualFilteredArticles = useMemo(
@@ -99,13 +102,14 @@ export function Timer() {
       endTime: new Date(endMs).toISOString(),
       durationMinutes: manualMinutes,
       isInterrupted: false,
-      aiUsed: false,
+      aiUsed: manualAiUsed,
       difficulty: 3,
       complexity: 'moderate',
     });
     setManualName('');
     setManualIssueId('');
     setManualArticleId('');
+    setManualAiUsed(false);
     setShowManual(false);
   };
 
@@ -203,6 +207,17 @@ export function Timer() {
               />
             </div>
           )}
+
+          {/* AI usage checkbox - show during config and while running */}
+          <label className="flex items-center gap-2 mb-4 cursor-pointer justify-center">
+            <input
+              type="checkbox"
+              checked={aiUsed}
+              onChange={(e) => setAiUsed(e.target.checked)}
+              className="w-4 h-4 rounded border-ink-600 accent-blue-600"
+            />
+            <span className="text-sm text-ink-300">AI使用</span>
+          </label>
 
           {/* Buttons */}
           <div className="flex gap-3 justify-center">
@@ -322,6 +337,15 @@ export function Timer() {
                   onChange={(e) => setManualName(e.target.value)}
                   className="w-full bg-ink-900 border border-ink-600 rounded px-3 py-2 text-sm text-paper-100 focus:border-accent-500 focus:outline-none"
                 />
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={manualAiUsed}
+                    onChange={(e) => setManualAiUsed(e.target.checked)}
+                    className="w-4 h-4 rounded border-ink-600 accent-blue-600"
+                  />
+                  <span className="text-sm text-ink-300">AI使用</span>
+                </label>
                 <button
                   onClick={handleManualSubmit}
                   className="w-full py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-lg text-sm font-medium"
