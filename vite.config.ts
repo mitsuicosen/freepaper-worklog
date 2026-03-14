@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/freepaper-worklog/',
+  base: process.env.GITHUB_PAGES ? '/freepaper-worklog/' : '/',
 });

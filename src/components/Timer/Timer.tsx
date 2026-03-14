@@ -7,19 +7,15 @@ import { formatDuration, formatTime, formatMinutes } from '../../utils/timeUtils
 const TASK_CATEGORIES = Object.entries(TASK_CATEGORY_LABELS) as [TaskCategory, string][];
 
 export function Timer() {
-  // Store state
-  const { activeTimer, startTimer, stopTimer, cancelTimer, logs } = useWorkLogStore((s) => ({
-    activeTimer: s.activeTimer,
-    startTimer: s.startTimer,
-    stopTimer: s.stopTimer,
-    cancelTimer: s.cancelTimer,
-    logs: s.logs,
-  }));
+  // Store state - select each value individually to avoid infinite re-renders
+  const activeTimer = useWorkLogStore((s) => s.activeTimer);
+  const startTimer = useWorkLogStore((s) => s.startTimer);
+  const stopTimer = useWorkLogStore((s) => s.stopTimer);
+  const cancelTimer = useWorkLogStore((s) => s.cancelTimer);
+  const logs = useWorkLogStore((s) => s.logs);
 
-  const { issues, articles } = useIssueStore((s) => ({
-    issues: s.issues,
-    articles: s.articles,
-  }));
+  const issues = useIssueStore((s) => s.issues);
+  const articles = useIssueStore((s) => s.articles);
 
   // Local state
   const [elapsed, setElapsed] = useState(0);
