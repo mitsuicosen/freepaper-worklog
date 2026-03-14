@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { DndContext, DragOverlay, closestCorners, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { useIssueStore } from '../../stores/issueStore';
-import type { Article, WorkflowStatus } from '../../types';
+import type { Article, Issue, WorkflowStatus } from '../../types';
 import { formatDate, getDeadlineBgColor, daysUntil } from '../../utils/timeUtils';
 import { KanbanColumn } from './KanbanColumn';
 import { CrossIssueView } from './CrossIssueView';
 import { CreateIssueModal } from './CreateIssueModal';
 import { CreateArticleModal } from './CreateArticleModal';
 import { EditArticleModal } from './EditArticleModal';
+import { EditIssueModal } from './EditIssueModal';
 import { ArticleCard } from './ArticleCard';
 
 const STATUSES: WorkflowStatus[] = ['planning', 'interview', 'writing', 'proofreading', 'completed'];
@@ -24,6 +25,7 @@ export function IssueBoard() {
   const [showCreateArticle, setShowCreateArticle] = useState(false);
   const [draggedArticle, setDraggedArticle] = useState<Article | null>(null);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -68,6 +70,7 @@ export function IssueBoard() {
               <button
                 key={issue.id}
                 onClick={() => selectIssue(issue.id)}
+                onDoubleClick={() => setEditingIssue(issue)}
                 className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                   isSelected
                     ? 'bg-accent-600 text-white'
@@ -76,7 +79,7 @@ export function IssueBoard() {
               >
                 第{issue.number}号
                 {days <= 7 && (
-                  <span className={`ml-1 text-xs ${days <= 3 ? 'text-red-300' : 'text-yellow-300'}`}>
+                  <span className={`ml-1 text-xs ${days <= 3 ? 'text-red-600' : 'text-yellow-600'}`}>
                     {days <= 0 ? '(期限超過)' : `(残${days}日)`}
                   </span>
                 )}
@@ -107,6 +110,12 @@ export function IssueBoard() {
             発行: {formatDate(selectedIssue.publishDate)} / 締切: {formatDate(selectedIssue.deadline)}
           </span>
           {selectedIssue.title && <span className="text-ink-300">- {selectedIssue.title}</span>}
+          <button
+            onClick={() => setEditingIssue(selectedIssue)}
+            className="ml-auto text-xs text-ink-400 hover:text-paper-100 transition-colors"
+          >
+            編集
+          </button>
         </div>
       )}
 
@@ -155,6 +164,11 @@ export function IssueBoard() {
         open={!!editingArticle}
         onClose={() => setEditingArticle(null)}
         article={editingArticle}
+      />
+      <EditIssueModal
+        open={!!editingIssue}
+        onClose={() => setEditingIssue(null)}
+        issue={editingIssue}
       />
       <CreateIssueModal open={showCreateIssue} onClose={() => setShowCreateIssue(false)} />
       {selectedIssueId && (

@@ -95,15 +95,15 @@ export function Analytics() {
             {barData.length > 0 ? (
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={barData} margin={{ bottom: 40 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#2b324a" />
-                  <XAxis dataKey="name" tick={{ fill: '#8d96b4', fontSize: 11 }} angle={-30} textAnchor="end" />
-                  <YAxis tick={{ fill: '#8d96b4', fontSize: 11 }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 11 }} angle={-30} textAnchor="end" />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#1c2133', border: '1px solid #3a4361', borderRadius: '8px' }}
-                    labelStyle={{ color: '#fdf9f3' }}
+                    contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
+                    labelStyle={{ color: '#1e293b' }}
                   />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="AI未使用" stackId="a" fill="#4a5578" />
+                  <Bar dataKey="AI未使用" stackId="a" fill="#94a3b8" />
                   <Bar dataKey="AI使用" stackId="a" fill="#3b82f6" />
                 </BarChart>
               </ResponsiveContainer>
@@ -122,7 +122,7 @@ export function Analytics() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#1c2133', border: '1px solid #3a4361', borderRadius: '8px' }}
+                    contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px' }}
                     formatter={(value) => formatMinutes(Number(value))}
                   />
                 </PieChart>
@@ -153,7 +153,7 @@ export function Analytics() {
                       <td className="p-2 text-paper-100">{row.category}</td>
                       <td className="p-2 text-right text-ink-300">{row.avgWithoutAi}分</td>
                       <td className="p-2 text-right text-ink-300">{row.avgWithAi}分</td>
-                      <td className={`p-2 text-right font-medium ${row.reductionPercent > 0 ? 'text-green-400' : 'text-ink-300'}`}>
+                      <td className={`p-2 text-right font-medium ${row.reductionPercent > 0 ? 'text-green-600' : 'text-ink-300'}`}>
                         {row.reductionPercent > 0 ? `-${row.reductionPercent}%` : `+${Math.abs(row.reductionPercent)}%`}
                       </td>
                     </tr>
@@ -171,15 +171,15 @@ export function Analytics() {
           <h3 className="text-sm font-medium text-ink-300 mb-4">差し込み業務分析（今週）</h3>
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-400">{intStats.count}</div>
+              <div className="text-2xl font-bold text-yellow-600">{intStats.count}</div>
               <div className="text-xs text-ink-400 mt-1">発生件数</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-400">{formatMinutes(intStats.totalMinutes)}</div>
+              <div className="text-2xl font-bold text-yellow-600">{formatMinutes(intStats.totalMinutes)}</div>
               <div className="text-xs text-ink-400 mt-1">合計時間</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-400">{intStats.percentage}%</div>
+              <div className="text-2xl font-bold text-yellow-600">{intStats.percentage}%</div>
               <div className="text-xs text-ink-400 mt-1">全体比</div>
             </div>
           </div>
