@@ -8,9 +8,10 @@ interface Props {
   status: WorkflowStatus;
   articles: Article[];
   onAddClick: () => void;
+  onEditArticle?: (article: Article) => void;
 }
 
-export function KanbanColumn({ status, articles, onAddClick }: Props) {
+export function KanbanColumn({ status, articles, onAddClick, onEditArticle }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
@@ -31,7 +32,7 @@ export function KanbanColumn({ status, articles, onAddClick }: Props) {
       <div className="p-2 flex-1 space-y-2 min-h-[100px]">
         <SortableContext items={articles.map((a) => a.id)} strategy={verticalListSortingStrategy}>
           {articles.map((article) => (
-            <ArticleCard key={article.id} article={article} />
+            <ArticleCard key={article.id} article={article} onEdit={onEditArticle} />
           ))}
         </SortableContext>
         {status === 'planning' && (

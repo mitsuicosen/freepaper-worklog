@@ -3,13 +3,13 @@ import { CSS } from '@dnd-kit/utilities';
 import type { Article } from '../../types';
 import { useWorkLogStore } from '../../stores/workLogStore';
 import { formatMinutes } from '../../utils/timeUtils';
-import { useIssueStore } from '../../stores/issueStore';
 
 interface Props {
   article: Article;
+  onEdit?: (article: Article) => void;
 }
 
-export function ArticleCard({ article }: Props) {
+export function ArticleCard({ article, onEdit }: Props) {
   const {
     attributes,
     listeners,
@@ -20,7 +20,6 @@ export function ArticleCard({ article }: Props) {
   } = useSortable({ id: article.id, data: { type: 'article', article } });
 
   const logs = useWorkLogStore((s) => s.logs);
-  const deleteArticle = useIssueStore((s) => s.deleteArticle);
   const articleLogs = logs.filter((l) => l.articleId === article.id);
   const totalMinutes = articleLogs.reduce((s, l) => s + (l.durationMinutes ?? 0), 0);
 
@@ -36,20 +35,10 @@ export function ArticleCard({ article }: Props) {
       style={style}
       {...attributes}
       {...listeners}
+      onClick={() => onEdit?.(article)}
       className="bg-ink-700 border border-ink-600 rounded p-3 cursor-grab active:cursor-grabbing hover:border-ink-400 transition-colors group"
     >
-      <div className="flex items-start justify-between gap-2">
-        <h4 className="text-sm font-medium text-paper-100 leading-tight">{article.title}</h4>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (confirm('この記事を削除しますか？')) deleteArticle(article.id);
-          }}
-          className="text-ink-500 hover:text-accent-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-        >
-          &times;
-        </button>
-      </div>
+      <h4 className="text-sm font-medium text-paper-100 leading-tight">{article.title}</h4>
       {article.category && (
         <span className="inline-block mt-1 px-2 py-0.5 text-xs bg-ink-600 text-ink-200 rounded">
           {article.category}
