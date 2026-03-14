@@ -124,7 +124,7 @@ export function Timer() {
         {!activeTimer && (
           <button
             onClick={handleQuickStart}
-            className="w-full py-3 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-600/40 text-yellow-300 rounded-lg font-medium transition-colors"
+            className="w-full py-3 bg-yellow-50 hover:bg-yellow-100 border border-yellow-300 text-yellow-700 rounded-lg font-medium transition-colors"
           >
             ⚡ 差し込み業務を記録
           </button>
