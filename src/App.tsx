@@ -3,6 +3,7 @@ import type { TabId } from './types';
 import { IssueBoard } from './components/IssueBoard/IssueBoard';
 import { Timer } from './components/Timer/Timer';
 import { Analytics } from './components/Analytics/Analytics';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { useWorkLogStore } from './stores/workLogStore';
 
 const TABS: { id: TabId; label: string; icon: string }[] = [
@@ -47,9 +48,11 @@ export default function App() {
 
       {/* Content */}
       <main className="flex-1 min-h-0">
-        {activeTab === 'board' && <IssueBoard />}
-        {activeTab === 'timer' && <Timer />}
-        {activeTab === 'analytics' && <Analytics />}
+        <ErrorBoundary>
+          {activeTab === 'board' && <IssueBoard />}
+          {activeTab === 'timer' && <Timer />}
+          {activeTab === 'analytics' && <Analytics />}
+        </ErrorBoundary>
       </main>
     </div>
   );
